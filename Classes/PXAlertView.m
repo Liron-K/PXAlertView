@@ -26,7 +26,6 @@ static const CGFloat AlertViewButtonHeight = 44;
 static const CGFloat AlertViewLineLayerWidth = 0.5;
 static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 
-
 @interface PXAlertView ()
 
 @property (nonatomic) BOOL buttonsShouldStack;
@@ -119,7 +118,7 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 		self.titleLabel.backgroundColor = [UIColor clearColor];
 		self.titleLabel.textColor = [UIColor whiteColor];
 		self.titleLabel.textAlignment = NSTextAlignmentCenter;
-		self.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+    self.titleLabel.font = [PXAlertViewDefaults sharedDefaults].titleFont;
 		self.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
 		self.titleLabel.numberOfLines = 0;
 		self.titleLabel.frame = [self adjustLabelFrameHeight:self.titleLabel];
@@ -153,7 +152,7 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 		self.messageLabel.backgroundColor = [UIColor clearColor];
 		self.messageLabel.textColor = [UIColor whiteColor];
 		self.messageLabel.textAlignment = NSTextAlignmentCenter;
-		self.messageLabel.font = [UIFont systemFontOfSize:15];
+    self.messageLabel.font = [PXAlertViewDefaults sharedDefaults].messageFont;
 		self.messageLabel.lineBreakMode = NSLineBreakByWordWrapping;
 		self.messageLabel.numberOfLines = 0;
 		self.messageLabel.frame = [self adjustLabelFrameHeight:self.messageLabel];
@@ -304,7 +303,7 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 {
 	UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
 	button.backgroundColor = [UIColor clearColor];
-	button.titleLabel.font = [UIFont systemFontOfSize:17];
+  button.titleLabel.font = [PXAlertViewDefaults sharedDefaults].buttonFont;
 	button.titleLabel.adjustsFontSizeToFitWidth = YES;
 	button.titleEdgeInsets = UIEdgeInsetsMake(2, 2, 2, 2);
 	[button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -671,11 +670,11 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 	[button setTitle:title forState:UIControlStateNormal];
 	
 	if (!self.cancelButton) {
-		button.titleLabel.font = [UIFont boldSystemFontOfSize:17];
+    button.titleLabel.font = [PXAlertViewDefaults sharedDefaults].buttonFont;
 		self.cancelButton = button;
 		self.cancelButton.frame = CGRectMake(0, self.buttonsY, AlertViewWidth, AlertViewButtonHeight);
 	} else if (self.buttonsShouldStack) {
-		button.titleLabel.font = [UIFont systemFontOfSize:17];
+    button.titleLabel.font = [PXAlertViewDefaults sharedDefaults].buttonFont;
 		self.otherButton = button;
 		
 		button.frame = self.cancelButton.frame;
@@ -688,7 +687,7 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 		[self.alertView.layer addSublayer:lineLayer];
 	} else if (self.buttons && [self.buttons count] > 1) {
 		UIButton *lastButton = (UIButton *)[self.buttons lastObject];
-		lastButton.titleLabel.font = [UIFont systemFontOfSize:17];
+    lastButton.titleLabel.font = [PXAlertViewDefaults sharedDefaults].buttonFont;
 		if ([self.buttons count] == 2) {
 			[self.verticalLine removeFromSuperlayer];
 			CALayer *lineLayer = [self lineLayer];
@@ -706,7 +705,7 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 		button.frame = CGRectMake(AlertViewWidth/2, self.buttonsY, AlertViewWidth/2, AlertViewButtonHeight);
 		self.otherButton = button;
 		self.cancelButton.frame = CGRectMake(0, self.buttonsY, AlertViewWidth/2, AlertViewButtonHeight);
-		self.cancelButton.titleLabel.font = [UIFont systemFontOfSize:17];
+    self.cancelButton.titleLabel.font = [PXAlertViewDefaults sharedDefaults].buttonFont;
 	}
 	
 	[self.alertView addSubview:button];
@@ -764,6 +763,32 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 	if (last && !last.view.superview) {
 		[last showInternal];
 	}
+}
+
+@end
+
+@implementation PXAlertViewDefaults
+
++(PXAlertViewDefaults*)sharedDefaults
+{
+  static PXAlertViewDefaults *sharedProperties = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    sharedProperties = [[self alloc] init];
+  });
+  return sharedProperties;
+}
+
+-(instancetype)init
+{
+  self = [super init];
+  if(!self) return nil;
+  
+  _titleFont = [UIFont boldSystemFontOfSize:17];
+  _messageFont = [UIFont systemFontOfSize:15];
+  _buttonFont = [UIFont systemFontOfSize:17];
+  
+  return self;
 }
 
 @end

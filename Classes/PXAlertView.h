@@ -10,6 +10,15 @@
 
 typedef void(^PXAlertViewCompletionBlock)(BOOL cancelled, NSInteger buttonIndex);
 
+@interface PXAlertViewDefaults : NSObject
+
+@property UIFont* titleFont;
+@property UIFont* messageFont;
+@property UIFont* buttonFont;
+
++(PXAlertViewDefaults*)sharedDefaults;
+@end
+
 @interface PXAlertView : UIViewController
 
 @property (nonatomic, getter = isVisible) BOOL visible;
@@ -93,5 +102,7 @@ typedef void(^PXAlertViewCompletionBlock)(BOOL cancelled, NSInteger buttonIndex)
  * This method enables or disables this feature.
  */
 - (void)setTapToDismissEnabled:(BOOL)enabled;
+
+-(void)updateLabelSizes;
 
 @end
