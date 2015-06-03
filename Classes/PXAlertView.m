@@ -66,6 +66,7 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 		 otherTitle:(NSString *)otherTitle
  buttonsShouldStack:(BOOL)shouldstack
 		contentView:(UIView *)contentView
+contentAboveMessage:(BOOL)contentAboveMessage
 		 completion:(PXAlertViewCompletionBlock)completion
 {
 	return [self initWithTitle:title
@@ -73,7 +74,8 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 				   cancelTitle:cancelTitle
 				   otherTitles:(otherTitle) ? @[ otherTitle ] : nil
 			buttonsShouldStack:(BOOL)shouldstack
-				   contentView:contentView
+                 contentView:contentView
+         contentAboveMessage:contentAboveMessage
 					completion:completion];
 }
 
@@ -82,7 +84,8 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 		cancelTitle:(NSString *)cancelTitle
 		otherTitles:(NSArray *)otherTitles
  buttonsShouldStack:(BOOL)shouldstack
-		contentView:(UIView *)contentView
+        contentView:(UIView *)contentView
+contentAboveMessage:(BOOL)contentAboveMessage
 		 completion:(PXAlertViewCompletionBlock)completion
 {
 	self = [super init];
@@ -127,16 +130,16 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 		CGFloat messageLabelY = self.titleLabel.frame.origin.y + self.titleLabel.frame.size.height + AlertViewVerticalElementSpace;
 		
 		// Optional Content View
-		if (contentView) {
-			self.contentView = contentView;
-			self.contentView.frame = CGRectMake(0,
-												messageLabelY,
-												self.contentView.frame.size.width,
-												self.contentView.frame.size.height);
-			self.contentView.center = CGPointMake(AlertViewWidth/2, self.contentView.center.y);
-			[self.alertView addSubview:self.contentView];
-			messageLabelY += contentView.frame.size.height + AlertViewVerticalElementSpace;
-		}
+    if(contentView && contentAboveMessage) {
+      self.contentView = contentView;
+      self.contentView.frame = CGRectMake(0,
+                                          messageLabelY,
+                                          self.contentView.frame.size.width,
+                                          self.contentView.frame.size.height);
+      self.contentView.center = CGPointMake(AlertViewWidth/2, self.contentView.center.y);
+      [self.alertView addSubview:self.contentView];
+      messageLabelY += contentView.frame.size.height + AlertViewVerticalElementSpace;
+    }
 		
 		// Message
 		self.messageScrollView = [[UIScrollView alloc] initWithFrame:(CGRect){
@@ -159,6 +162,17 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 		self.messageScrollView.contentSize = self.messageLabel.frame.size;
 		
 		[self.messageScrollView addSubview:self.messageLabel];
+    
+    if(contentView && !contentAboveMessage) {
+      self.contentView = contentView;
+      self.contentView.frame = CGRectMake(0,
+                                          CGRectGetMaxY(self.messageLabel.frame),
+                                          self.contentView.frame.size.width,
+                                          self.contentView.frame.size.height);
+      self.contentView.center = CGPointMake(AlertViewWidth/2, self.contentView.center.y);
+      [self.messageScrollView addSubview:self.contentView];
+      self.messageScrollView.contentSize = CGSizeMake(self.messageScrollView.contentSize.width, CGRectGetMaxY(self.contentView.frame));
+    }
 		[self.alertView addSubview:self.messageScrollView];
 		
 		// Get total button height
@@ -179,10 +193,15 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 			totalBottomHeight += AlertViewButtonHeight;
 		}
 		
+    CGFloat messageContentHeight = self.messageLabel.frame.size.height;
+    if(self.contentView.superview == self.messageScrollView)
+    {
+      messageContentHeight = CGRectGetMaxY(self.contentView.frame);
+    }
 		self.messageScrollView.frame = (CGRect) {
 			self.messageScrollView.frame.origin,
 			self.messageScrollView.frame.size.width,
-			MIN(self.messageLabel.frame.size.height, self.alertWindow.frame.size.height - self.messageScrollView.frame.origin.y - totalBottomHeight - AlertViewVerticalEdgeMinMargin * 2)
+			MIN(messageContentHeight, self.alertWindow.frame.size.height - self.messageScrollView.frame.origin.y - totalBottomHeight - AlertViewVerticalEdgeMinMargin * 2)
 		};
 		
 		// Line
@@ -551,6 +570,7 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 											  otherTitle:nil
 									  buttonsShouldStack:NO
 											 contentView:nil
+                                   contentAboveMessage:NO
 											  completion:completion];
 	[alertView show];
 	return alertView;
@@ -567,7 +587,8 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 											 cancelTitle:cancelTitle
 											  otherTitle:otherTitle
 									  buttonsShouldStack:NO
-											 contentView:nil
+                                           contentView:nil
+                                   contentAboveMessage:NO
 											  completion:completion];
 	[alertView show];
 	return alertView;
@@ -585,7 +606,8 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 											 cancelTitle:cancelTitle
 											  otherTitle:otherTitle
 									  buttonsShouldStack:shouldStack
-											 contentView:nil
+                                           contentView:nil
+                                   contentAboveMessage:NO
 											  completion:completion];
 	[alertView show];
 	return alertView;
@@ -602,7 +624,8 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 											 cancelTitle:cancelTitle
 											 otherTitles:otherTitles
 									  buttonsShouldStack:NO
-											 contentView:nil
+                                           contentView:nil
+                                   contentAboveMessage:NO
 											  completion:completion];
 	[alertView show];
 	return alertView;
@@ -620,10 +643,31 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 											 cancelTitle:cancelTitle
 											  otherTitle:otherTitle
 									  buttonsShouldStack:NO
-											 contentView:view
+                                           contentView:view
+                                   contentAboveMessage:NO
 											  completion:completion];
 	[alertView show];
 	return alertView;
+}
+
++ (instancetype)showAlertWithTitle:(NSString *)title
+                           message:(NSString *)message
+                       cancelTitle:(NSString *)cancelTitle
+                        otherTitle:(NSString *)otherTitle
+                       contentView:(UIView *)view
+               contentAboveMessage:(BOOL)contentAboveMessage
+                        completion:(PXAlertViewCompletionBlock)completion
+{
+  PXAlertView *alertView = [[self alloc] initWithTitle:title
+                                               message:message
+                                           cancelTitle:cancelTitle
+                                            otherTitle:otherTitle
+                                    buttonsShouldStack:NO
+                                           contentView:view
+                                   contentAboveMessage:contentAboveMessage
+                                            completion:completion];
+  [alertView show];
+  return alertView;
 }
 
 + (instancetype)showAlertWithTitle:(NSString *)title
@@ -639,12 +683,34 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 											 cancelTitle:cancelTitle
 											  otherTitle:otherTitle
 									  buttonsShouldStack:shouldStack
-											 contentView:view
+                                           contentView:view
+                                   contentAboveMessage:NO
 											  completion:completion];
 	[alertView show];
 	return alertView;
 }
 
+
++ (instancetype)showAlertWithTitle:(NSString *)title
+                           message:(NSString *)message
+                       cancelTitle:(NSString *)cancelTitle
+                        otherTitle:(NSString *)otherTitle
+                buttonsShouldStack:(BOOL)shouldStack
+                       contentView:(UIView *)view
+               contentAboveMessage:(BOOL)contentAboveMessage
+                        completion:(PXAlertViewCompletionBlock)completion
+{
+  PXAlertView *alertView = [[self alloc] initWithTitle:title
+                                               message:message
+                                           cancelTitle:cancelTitle
+                                            otherTitle:otherTitle
+                                    buttonsShouldStack:shouldStack
+                                           contentView:view
+                                   contentAboveMessage:contentAboveMessage
+                                            completion:completion];
+  [alertView show];
+  return alertView;
+}
 
 + (instancetype)showAlertWithTitle:(NSString *)title
 						   message:(NSString *)message
@@ -659,9 +725,30 @@ static const CGFloat AlertViewVerticalEdgeMinMargin = 25;
 											 otherTitles:otherTitles
 									  buttonsShouldStack:NO
 											 contentView:view
+                                   contentAboveMessage:NO
 											  completion:completion];
 	[alertView show];
 	return alertView;
+}
+
++ (instancetype)showAlertWithTitle:(NSString *)title
+                           message:(NSString *)message
+                       cancelTitle:(NSString *)cancelTitle
+                       otherTitles:(NSArray *)otherTitles
+                       contentView:(UIView *)view
+               contentAboveMessage:(BOOL)contentAboveMessage
+                        completion:(PXAlertViewCompletionBlock)completion
+{
+ 	PXAlertView *alertView = [[self alloc] initWithTitle:title
+                                               message:message
+                                           cancelTitle:cancelTitle
+                                           otherTitles:otherTitles
+                                    buttonsShouldStack:NO
+                                           contentView:view
+                                   contentAboveMessage:contentAboveMessage
+                                            completion:completion];
+  [alertView show];
+  return alertView;
 }
 
 - (NSInteger)addButtonWithTitle:(NSString *)title

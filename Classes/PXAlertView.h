@@ -71,8 +71,25 @@ typedef void(^PXAlertViewCompletionBlock)(BOOL cancelled, NSInteger buttonIndex)
                            message:(NSString *)message
                        cancelTitle:(NSString *)cancelTitle
                         otherTitle:(NSString *)otherTitle
+                       contentView:(UIView *)view
+               contentAboveMessage:(BOOL)contentAboveMessage
+                        completion:(PXAlertViewCompletionBlock)completion;
+
++ (instancetype)showAlertWithTitle:(NSString *)title
+                           message:(NSString *)message
+                       cancelTitle:(NSString *)cancelTitle
+                        otherTitle:(NSString *)otherTitle
                 buttonsShouldStack:(BOOL)shouldStack
                        contentView:(UIView *)view
+                        completion:(PXAlertViewCompletionBlock)completion;
+
++ (instancetype)showAlertWithTitle:(NSString *)title
+                           message:(NSString *)message
+                       cancelTitle:(NSString *)cancelTitle
+                        otherTitle:(NSString *)otherTitle
+                buttonsShouldStack:(BOOL)shouldStack
+                       contentView:(UIView *)view
+               contentAboveMessage:(BOOL)contentAboveMessage
                         completion:(PXAlertViewCompletionBlock)completion;
 
 /**
@@ -83,6 +100,14 @@ typedef void(^PXAlertViewCompletionBlock)(BOOL cancelled, NSInteger buttonIndex)
                        cancelTitle:(NSString *)cancelTitle
                        otherTitles:(NSArray *)otherTitles
                        contentView:(UIView *)view
+                        completion:(PXAlertViewCompletionBlock)completion;
+
++ (instancetype)showAlertWithTitle:(NSString *)title
+                           message:(NSString *)message
+                       cancelTitle:(NSString *)cancelTitle
+                       otherTitles:(NSArray *)otherTitles
+                       contentView:(UIView *)view
+               contentAboveMessage:(BOOL)contentAboveMessage
                         completion:(PXAlertViewCompletionBlock)completion;
 
 /**
