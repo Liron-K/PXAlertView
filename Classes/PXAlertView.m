@@ -521,7 +521,7 @@ contentAboveMessage:(BOOL)contentAboveMessage
 	return YES;
 }
 
-- (NSUInteger)supportedInterfaceOrientations
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations
 {
 	return UIInterfaceOrientationMaskAll;
 }

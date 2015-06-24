@@ -128,6 +128,4 @@ typedef void(^PXAlertViewCompletionBlock)(BOOL cancelled, NSInteger buttonIndex)
  */
 - (void)setTapToDismissEnabled:(BOOL)enabled;
 
--(void)updateLabelSizes;
-
 @end
